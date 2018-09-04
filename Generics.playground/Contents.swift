@@ -45,6 +45,21 @@ struct CountedSet<Element>: ExpressibleByArrayLiteral, Sequence, IteratorProtoco
     //        return true
     //    }
     
+    mutating func mutatingUnion(_ countedSet: CountedSet) {
+        for element in countedSet {
+            insert(element)
+        }
+    }
+    
+    func union(_ countedSet: CountedSet) -> CountedSet {
+        var newCountedSet = CountedSet()
+        newCountedSet.storage = storage
+        for element in countedSet {
+            newCountedSet.insert(element)
+        }
+        return newCountedSet
+    }
+    
     mutating func next() -> Element? {
         guard let element = storage.first else { return nil }
         defer { storage.remove(at: storage.startIndex) }
@@ -74,3 +89,14 @@ if myCountedSet.contains(.dwarvish) && myCountedSet.contains(.iron) {
 } else {
     print("myCountedSet doesn't conatin any")
 }
+
+var secondCountedSet: CountedSet<Arrow> = [.iron, .dwarvish, .magic]
+
+let unionedCountedSet = myCountedSet.union(secondCountedSet)
+unionedCountedSet[.iron]
+unionedCountedSet[.dwarvish]
+unionedCountedSet[.magic]
+
+secondCountedSet.mutatingUnion(myCountedSet)
+secondCountedSet[.silver]
+secondCountedSet.count
