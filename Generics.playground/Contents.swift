@@ -1,10 +1,15 @@
 struct CountedSet<Element>: ExpressibleByArrayLiteral, Sequence, IteratorProtocol, Equatable where Element: Hashable {
     
+    // MARK: - Initializer
+    
     init(arrayLiteral: Element...) {
         for element in arrayLiteral {
             insert(element)
         }
     }
+    
+    
+    // MARK: - Properties
     
     private(set) var storage: [Element: Int] = [:]
     
@@ -20,11 +25,17 @@ struct CountedSet<Element>: ExpressibleByArrayLiteral, Sequence, IteratorProtoco
         }
     }
     
+    
+    // MARK: - Subscript notation
+    
     subscript(_ element: Element) -> Int {
         get {
             return storage[element] ?? 0
         }
     }
+    
+    
+    // MARK: - Insert and remove
     
     mutating func insert(_ element: Element) {
         guard let int = storage[element] else {
@@ -36,14 +47,24 @@ struct CountedSet<Element>: ExpressibleByArrayLiteral, Sequence, IteratorProtoco
     
     mutating func remove(_ element: Element) -> Int {
         guard let int = storage[element] else { return 0 }
+        if int == 1 {
+            guard let index = storage.index(forKey: element) else { return 0 }
+            storage.remove(at: index)
+        }
         storage[element] = int - 1
         return storage[element] ?? 0
     }
+    
+    
+    // MARK: - Check if it contains an element
     
     func contains(_ element: Element) -> Bool {
         guard let _ = storage[element] else { return false }
         return true
     }
+    
+    
+    // MARK: - Unions
     
     mutating func mutatingUnion(_ countedSet: CountedSet<Element>) {
         for element in countedSet {
@@ -59,6 +80,9 @@ struct CountedSet<Element>: ExpressibleByArrayLiteral, Sequence, IteratorProtoco
         }
         return newCountedSet
     }
+    
+    
+    // MARK: - Intersection and subtraction
     
     func intersection(_ countedSet: CountedSet<Element>) -> CountedSet<Element> {
         var newCountedSet: CountedSet<Element> = []
@@ -78,14 +102,22 @@ struct CountedSet<Element>: ExpressibleByArrayLiteral, Sequence, IteratorProtoco
         return newCountedSet
     }
     
+    
+    // MARK: - Equatability
+    
     static func == (lhs: CountedSet<Element>, rhs: CountedSet<Element>) -> Bool {
         return lhs.storage == rhs.storage
     }
     
+    
+    // MARK: - Check if disjointed
+    
     func isDisjointed() -> Bool {
         var new: CountedSet<Element> = []
         for element in self {
-            new.insert(element)
+            for _ in 1...self[element] {
+                new.insert(element)
+            }
         }
         if self == new {
             return false
@@ -94,12 +126,18 @@ struct CountedSet<Element>: ExpressibleByArrayLiteral, Sequence, IteratorProtoco
         }
     }
     
+    
+    // MARK: - Allows for in loops
+    
     mutating func next() -> Element? {
         guard let element = storage.first else { return nil }
         defer { storage.remove(at: storage.startIndex) }
         return element.key
     }
 }
+
+
+// MARK: - Testing
 
 enum Arrow { case iron, wooden, elven, dwarvish, magic, silver }
 var aCountedSet = CountedSet<Arrow>()
@@ -147,3 +185,8 @@ oneSubtracted[.iron]
 let oneDuplicated: CountedSet<Arrow> = [.iron, .wooden, .elven, .iron]
 one == oneDuplicated
 one == two
+
+one.isDisjointed()
+two.isDisjointed()
+//myCountedSet.isDisjointed()
+print(myCountedSet.storage)
