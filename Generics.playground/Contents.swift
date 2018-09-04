@@ -40,6 +40,11 @@ struct CountedSet<Element>: ExpressibleByArrayLiteral, Sequence, IteratorProtoco
         return storage[element] ?? 0
     }
     
+    //    func contains(_ element: Element) -> Bool {
+    //        guard let _ = storage[element] else { return false }
+    //        return true
+    //    }
+    
     mutating func next() -> Element? {
         guard let element = storage.first else { return nil }
         defer { storage.remove(at: storage.startIndex) }
@@ -62,4 +67,10 @@ for element in myCountedSet {
     print(element)
 }
 
-myCountedSet.count
+if myCountedSet.contains(.dwarvish) && myCountedSet.contains(.iron) {
+    print("myCountedSet contains both")
+} else if myCountedSet.contains(.iron) {
+    print("myCountedSet only contains .iron")
+} else {
+    print("myCountedSet doesn't conatin any")
+}
