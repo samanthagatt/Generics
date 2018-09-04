@@ -40,10 +40,10 @@ struct CountedSet<Element>: ExpressibleByArrayLiteral, Sequence, IteratorProtoco
         return storage[element] ?? 0
     }
     
-    //    func contains(_ element: Element) -> Bool {
-    //        guard let _ = storage[element] else { return false }
-    //        return true
-    //    }
+    func contains(_ element: Element) -> Bool {
+        guard let _ = storage[element] else { return false }
+        return true
+    }
     
     mutating func mutatingUnion(_ countedSet: CountedSet) {
         for element in countedSet {
@@ -55,6 +55,24 @@ struct CountedSet<Element>: ExpressibleByArrayLiteral, Sequence, IteratorProtoco
         var newCountedSet = CountedSet()
         newCountedSet.storage = storage
         for element in countedSet {
+            newCountedSet.insert(element)
+        }
+        return newCountedSet
+    }
+    
+func intersection(_ countedSet: CountedSet) -> CountedSet {
+    var newCountedSet = CountedSet()
+    for element in countedSet {
+        guard self.contains(element) else { continue }
+        newCountedSet.insert(element)
+    }
+    return newCountedSet
+}
+    
+    func subtraction(_ countedSet: CountedSet) -> CountedSet {
+        var newCountedSet = CountedSet()
+        for element in self {
+            guard !self.contains(element) else { continue }
             newCountedSet.insert(element)
         }
         return newCountedSet
@@ -100,3 +118,12 @@ unionedCountedSet[.magic]
 secondCountedSet.mutatingUnion(myCountedSet)
 secondCountedSet[.silver]
 secondCountedSet.count
+
+let one: CountedSet<Arrow> = [.iron, .wooden, .elven, .iron]
+one[.iron]
+let two: CountedSet<Arrow> = [.iron, .silver, .iron, .iron]
+
+let intersected = one.intersection(two)
+intersected[.iron]
+let oneSubtracted = two.subtraction(one)
+oneSubtracted[.iron]
