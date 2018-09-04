@@ -1,4 +1,4 @@
-struct CountedSet<Element>: ExpressibleByArrayLiteral where Element: Hashable {
+struct CountedSet<Element>: ExpressibleByArrayLiteral, Sequence, IteratorProtocol where Element: Hashable {
     
     init(arrayLiteral: Element...) {
         for element in arrayLiteral {
@@ -39,6 +39,12 @@ struct CountedSet<Element>: ExpressibleByArrayLiteral where Element: Hashable {
         storage[element] = int - 1
         return storage[element] ?? 0
     }
+    
+    mutating func next() -> Element? {
+        guard let element = storage.first else { return nil }
+        defer { storage.remove(at: storage.startIndex) }
+        return element.key
+    }
 }
 
 enum Arrow { case iron, wooden, elven, dwarvish, magic, silver }
@@ -49,3 +55,11 @@ myCountedSet[.iron] // 4
 myCountedSet.remove(.iron) // 3
 myCountedSet.remove(.dwarvish) // 0
 myCountedSet.remove(.magic) // 0
+myCountedSet.isEmpty
+myCountedSet.count
+
+for element in myCountedSet {
+    print(element)
+}
+
+myCountedSet.count
