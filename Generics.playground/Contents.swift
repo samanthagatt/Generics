@@ -88,9 +88,9 @@ struct CountedSet<Element>: ExpressibleByArrayLiteral, Sequence, IteratorProtoco
             new.insert(element)
         }
         if self == new {
-            return true
-        } else {
             return false
+        } else {
+            return true
         }
     }
     
