@@ -1,4 +1,4 @@
-struct CountedSet<Element>: ExpressibleByArrayLiteral, Sequence, IteratorProtocol where Element: Hashable {
+struct CountedSet<Element>: ExpressibleByArrayLiteral, Sequence, IteratorProtocol, Equatable where Element: Hashable {
     
     init(arrayLiteral: Element...) {
         for element in arrayLiteral {
@@ -45,13 +45,13 @@ struct CountedSet<Element>: ExpressibleByArrayLiteral, Sequence, IteratorProtoco
         return true
     }
     
-    mutating func mutatingUnion(_ countedSet: CountedSet) {
+    mutating func mutatingUnion(_ countedSet: CountedSet<Element>) {
         for element in countedSet {
             insert(element)
         }
     }
     
-    func union(_ countedSet: CountedSet) -> CountedSet {
+    func union(_ countedSet: CountedSet<Element>) -> CountedSet<Element> {
         var newCountedSet = CountedSet()
         newCountedSet.storage = storage
         for element in countedSet {
@@ -60,22 +60,38 @@ struct CountedSet<Element>: ExpressibleByArrayLiteral, Sequence, IteratorProtoco
         return newCountedSet
     }
     
-func intersection(_ countedSet: CountedSet) -> CountedSet {
-    var newCountedSet = CountedSet()
-    for element in countedSet {
-        guard self.contains(element) else { continue }
-        newCountedSet.insert(element)
+    func intersection(_ countedSet: CountedSet<Element>) -> CountedSet<Element> {
+        var newCountedSet: CountedSet<Element> = []
+        for element in countedSet {
+            guard self.contains(element) else { continue }
+            newCountedSet.insert(element)
+        }
+        return newCountedSet
     }
-    return newCountedSet
-}
     
-    func subtraction(_ countedSet: CountedSet) -> CountedSet {
-        var newCountedSet = CountedSet()
+    func subtraction(_ countedSet: CountedSet<Element>) -> CountedSet<Element> {
+        var newCountedSet: CountedSet<Element> = []
         for element in self {
             guard !self.contains(element) else { continue }
             newCountedSet.insert(element)
         }
         return newCountedSet
+    }
+    
+    static func == (lhs: CountedSet<Element>, rhs: CountedSet<Element>) -> Bool {
+        return lhs.storage == rhs.storage
+    }
+    
+    func isDisjointed() -> Bool {
+        var new: CountedSet<Element> = []
+        for element in self {
+            new.insert(element)
+        }
+        if self == new {
+            return true
+        } else {
+            return false
+        }
     }
     
     mutating func next() -> Element? {
@@ -127,3 +143,7 @@ let intersected = one.intersection(two)
 intersected[.iron]
 let oneSubtracted = two.subtraction(one)
 oneSubtracted[.iron]
+
+let oneDuplicated: CountedSet<Arrow> = [.iron, .wooden, .elven, .iron]
+one == oneDuplicated
+one == two
