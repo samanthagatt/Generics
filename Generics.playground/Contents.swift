@@ -50,6 +50,7 @@ struct CountedSet<Element>: ExpressibleByArrayLiteral, Sequence, IteratorProtoco
         if int == 1 {
             guard let index = storage.index(forKey: element) else { return 0 }
             storage.remove(at: index)
+            return 0
         }
         storage[element] = int - 1
         return storage[element] ?? 0
@@ -178,7 +179,7 @@ one[.iron]
 let two: CountedSet<Arrow> = [.iron, .silver, .iron, .iron]
 
 let intersected = one.intersection(two)
-intersected[.iron]
+intersected[.iron] // 3
 let oneSubtracted = two.subtraction(one)
 oneSubtracted[.iron]
 
@@ -188,5 +189,4 @@ one == two
 
 one.isDisjointed()
 two.isDisjointed()
-//myCountedSet.isDisjointed()
-print(myCountedSet.storage)
+myCountedSet.isDisjointed()
